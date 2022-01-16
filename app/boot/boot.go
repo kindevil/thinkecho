@@ -1,8 +1,8 @@
 /*
  * @Author: jia
- * @LastEditTime: 2021-11-04 21:58:05
+ * @LastEditTime: 2022-01-16 22:57:44
  * @FilePath: /thinkecho/app/boot/boot.go
- * @Date: 2021-11-03 23:03:52
+ * @Date: 2022-01-16 22:23:27
  * @Software: VS Code
  */
 package boot
@@ -10,7 +10,7 @@ package boot
 import (
 	"fmt"
 	"os"
-	"thinkecho/app/database"
+	"thinkecho/app/model"
 	"thinkecho/app/pkg/config"
 )
 
@@ -22,7 +22,7 @@ func init() {
 		os.Exit(1)
 	}
 
-	if err = database.InitDb(); err != nil {
+	if err = model.InitDb(); err != nil {
 		fmt.Printf("%s", err)
 		os.Exit(1)
 	}

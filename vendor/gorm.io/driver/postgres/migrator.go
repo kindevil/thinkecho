@@ -163,6 +163,11 @@ func (m Migrator) DropIndex(value interface{}, name string) error {
 	})
 }
 
+func (m Migrator) GetTables() (tableList []string, err error) {
+	currentSchema, _ := m.CurrentSchema(m.DB.Statement, "")
+	return tableList, m.DB.Raw("SELECT table_name FROM information_schema.tables WHERE table_schema = ? AND table_type = ?", currentSchema, "BASE TABLE").Scan(&tableList).Error
+}
+
 func (m Migrator) CreateTable(values ...interface{}) (err error) {
 	if err = m.Migrator.CreateTable(values...); err != nil {
 		return
@@ -249,9 +254,13 @@ func (m Migrator) HasColumn(value interface{}, field string) bool {
 }
 
 func (m Migrator) MigrateColumn(value interface{}, field *schema.Field, columnType gorm.ColumnType) error {
-	if err := m.Migrator.MigrateColumn(value, field, columnType); err != nil {
-		return err
+	// skip primary field
+	if !field.PrimaryKey {
+		if err := m.Migrator.MigrateColumn(value, field, columnType); err != nil {
+			return err
+		}
 	}
+
 	return m.RunWithValue(value, func(stmt *gorm.Statement) error {
 		var description string
 		currentSchema, curTable := m.CurrentSchema(stmt, stmt.Table)

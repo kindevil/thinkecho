@@ -1,8 +1,8 @@
 /*
  * @Author: jia
- * @LastEditTime: 2021-11-03 22:52:11
+ * @LastEditTime: 2022-01-16 22:30:16
  * @FilePath: /thinkecho/app/pkg/file/file.go
- * @Date: 2021-11-03 22:51:05
+ * @Date: 2022-01-16 22:30:16
  * @Software: VS Code
  */
 package file

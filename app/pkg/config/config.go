@@ -1,8 +1,8 @@
 /*
  * @Author: jia
- * @LastEditTime: 2021-11-09 21:44:27
+ * @LastEditTime: 2022-01-16 22:23:03
  * @FilePath: /thinkecho/app/pkg/config/config.go
- * @Date: 2021-11-03 22:39:36
+ * @Date: 2022-01-16 22:23:03
  * @Software: VS Code
  */
 package config

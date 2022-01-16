@@ -59,20 +59,24 @@ func Update(config *Config) func(db *gorm.DB) {
 			return
 		}
 
-		if db.Statement.Schema != nil && !db.Statement.Unscoped {
+		if db.Statement.SQL.Len() == 0 {
+			db.Statement.SQL.Grow(180)
+			db.Statement.AddClauseIfNotExists(clause.Update{})
+			if set := ConvertToAssignments(db.Statement); len(set) != 0 {
+				db.Statement.AddClause(set)
+			} else if _, ok := db.Statement.Clauses["SET"]; !ok {
+				return
+			}
+
+		}
+
+		if db.Statement.Schema != nil {
 			for _, c := range db.Statement.Schema.UpdateClauses {
 				db.Statement.AddClause(c)
 			}
 		}
 
-		if db.Statement.SQL.String() == "" {
-			db.Statement.SQL.Grow(180)
-			db.Statement.AddClauseIfNotExists(clause.Update{})
-			if set := ConvertToAssignments(db.Statement); len(set) != 0 {
-				db.Statement.AddClause(set)
-			} else {
-				return
-			}
+		if db.Statement.SQL.Len() == 0 {
 			db.Statement.Build(db.Statement.BuildClauses...)
 		}
 
@@ -88,7 +92,7 @@ func Update(config *Config) func(db *gorm.DB) {
 					db.Statement.Dest = db.Statement.ReflectValue.Addr().Interface()
 					gorm.Scan(rows, db, mode)
 					db.Statement.Dest = dest
-					rows.Close()
+					db.AddError(rows.Close())
 				}
 			} else {
 				result, err := db.Statement.ConnPool.ExecContext(db.Statement.Context, db.Statement.SQL.String(), db.Statement.Vars...)
@@ -157,8 +161,8 @@ func ConvertToAssignments(stmt *gorm.Statement) (set clause.Set) {
 		case reflect.Slice, reflect.Array:
 			if size := stmt.ReflectValue.Len(); size > 0 {
 				var primaryKeyExprs []clause.Expression
-				for i := 0; i < stmt.ReflectValue.Len(); i++ {
-					var exprs = make([]clause.Expression, len(stmt.Schema.PrimaryFields))
+				for i := 0; i < size; i++ {
+					exprs := make([]clause.Expression, len(stmt.Schema.PrimaryFields))
 					var notZero bool
 					for idx, field := range stmt.Schema.PrimaryFields {
 						value, isZero := field.ValueOf(stmt.ReflectValue.Index(i))
@@ -238,7 +242,7 @@ func ConvertToAssignments(stmt *gorm.Statement) (set clause.Set) {
 			}
 		}
 	default:
-		var updatingSchema = stmt.Schema
+		updatingSchema := stmt.Schema
 		if !updatingValue.CanAddr() || stmt.Dest != stmt.Model {
 			// different schema
 			updatingStmt := &gorm.Statement{DB: stmt.DB}
