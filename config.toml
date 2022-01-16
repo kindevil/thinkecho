@@ -1,0 +1,26 @@
+address = ":3000"
+db_type = "mysql"
+mode = "debug"
+
+[mysql]
+  charset = "utf8mb4"
+  db_name = "thinkecho"
+  prefix = "typecho_"
+  host = "127.0.0.1"
+  local = "Local"
+  parse_time = "True"
+  password = "yzkh_1028"
+  port = "3306"
+  user = "root"
+
+[postgre]
+  db_name = "thinkecho"
+  host = "localhost"
+  password = "passwd"
+  port = "9920"
+  ssl_mode = "disable"
+  timezone = "Asia/Shanghai"
+  user = "thinkecho"
+
+[sqlite]
+  file_path = "thinkecho.db"
